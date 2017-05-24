@@ -9,13 +9,13 @@ absolute() {
 
 SANDBOX_HOME=$(absolute $1)
 if [ -z $SANDBOX_HOME ]; then
-  echo "Could not access $1"
+  (>&2 echo "Could not access $1.")
   exit 1
 fi
 
 SANDBOX_USER=$(getent passwd | awk -F: '"'$SANDBOX_HOME'" == $6 && $5=="Sandbox user" { print $1 }' | head -1)
 if [ -z "$SANDBOX_USER" ]; then
-  echo No user has $SANDBOX_HOME as home directory.
+  (>&2 echo "No user has $SANDBOX_HOME as home directory.")
   exit 1
 fi
 
