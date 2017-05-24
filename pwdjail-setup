@@ -1,0 +1,13 @@
+#!/bin/sh
+## Copyright 2017 Clemens Fruhwirth <clemens@endorphin.org>
+##
+## Usage: pwdjail-setup
+##
+
+echo "Adding sandboxes group."
+sudo groupadd sandboxes
+echo "$USER     ALL=(%sandboxes) NOPASSWD: ALL" | sudo tee -a /etc/sudoers > /dev/null
+echo "Adding $USER to sudoers for sandboxes group."
+
+echo "Please make sure that $(cd $(dirname $0); pwd)/sandbox-zshrc is accessible permission-wise by users in the sandboxes group."
+

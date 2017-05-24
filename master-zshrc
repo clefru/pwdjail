@@ -1,0 +1,27 @@
+## Copyright 2017 Clemens Fruhwirth <clemens@endorphin.org>
+##
+## Usage: source master-zshrc from your .zshrc
+##
+
+pwdjail_enter() {
+    # Grab through /etc/passwd for sandbox users that have a home dir above $PWD.
+    SANDBOX_USER=$(getent passwd | awk -F: '"'$PWD'" ~ $6 && $5=="Sandbox user" { print $1 }' | head -1)
+    [ -z "$SANDBOX_USER" ] && return
+
+    TMP=$(mktemp)
+    chmod a+w $TMP
+
+    sudo -u $SANDBOX_USER /usr/bin/env PWDJAIL_EXIT_DIR=$TMP zsh -i
+    EXIT_DIR=$(cat $TMP)
+    rm $TMP
+    if [ -z "$EXIT_DIR" ]; then
+        echo 'Warning: Sandbox shell exited without changing directory. Use "cd" to exit.'
+        echo 'You are in a sandbox directory now.'
+    else
+        cd $EXIT_DIR
+    fi
+}
+
+chpwd() {
+    pwdjail_enter
+}

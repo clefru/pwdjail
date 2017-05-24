@@ -1,0 +1,15 @@
+## Copyright 2017 Clemens Fruhwirth <clemens@endorphin.org>
+
+chpwd() {
+    [ -z "$PWDJAIL_EXIT_DIR" ] && return
+
+    case $PWD/ in
+	$HOME/*)
+	;;
+	*)
+	    if [ -n "$PWDJAIL_EXIT_DIR" ]; then
+		echo $PWD > $PWDJAIL_EXIT_DIR
+		exit 0
+	    fi
+    esac
+}

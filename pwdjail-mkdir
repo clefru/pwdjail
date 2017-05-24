@@ -1,0 +1,62 @@
+#!/bin/sh
+## Copyright 2017 Clemens Fruhwirth <clemens@endorphin.org>
+##
+## Usage: pwdjail-mkdir DIR
+##
+absolute() {
+    cd $1 && pwd
+}
+
+ZSH=$(grep zsh /etc/shells | head -1)
+if [ -z "ZSH" ]; then
+    (>&2 echo "Could not find zsh in /etc/shells. Please install zsh.")
+    exit 1
+fi
+
+PWDJAIL_ROOT=$(absolute $(dirname $0))
+if [ -z $PWDJAIL_ROOT ]; then
+  (>&2 echo "Could not find install dir of pwdjail.")
+  echo "Could not find PWDJAIL_ROOT"
+  exit 1
+fi
+
+pick_user_name() {
+    PREFIX=$1
+    for CANDIDATE in $PREFIX $PREFIX-$(seq -s " $PREFIX-" 1 10); do
+        # Verify that this user does not exist.
+        getent passwd $CANDIDATE > /dev/null
+        if [ "$?" -ne 0 ]; then
+            echo $CANDIDATE
+            return
+        fi
+    done
+    (>&2 echo "Could not find a username for sandbox user.")
+}
+
+SANDBOX_USER=$(pick_user_name $(basename $1))
+if [ -z "$SANDBOX_USER" ]; then
+    exit 1
+fi
+
+mkdir $1 || exit 1
+
+SANDBOX_HOME=$(absolute $1)
+if [ -z $SANDBOX_HOME ]; then
+  (>&2 echo "Could not access $1 after creating it.")
+  exit 1
+fi
+
+MASTER_USER=$USER
+
+sudo useradd -d $SANDBOX_HOME -g sandboxes -c "Sandbox user" -s $ZSH $SANDBOX_USER
+sudo chown $SANDBOX_USER:sandboxes $SANDBOX_HOME
+sudo chmod 700 $SANDBOX_HOME
+# Allow the master user access to all files and dirs created within
+# there even when created by the sandbox user.
+sudo setfacl -d -m u:$MASTER_USER:rwx $SANDBOX_HOME
+# Allow the sandbox user access to all files and dirs created within
+# there even when created by the master user.
+sudo setfacl -d -m u:$SANDBOX_USER:rwx $SANDBOX_HOME
+sudo setfacl -m u:$MASTER_USER:rwx $SANDBOX_HOME
+
+sudo ln -s $PWDJAIL_ROOT/sandbox-zshrc $SANDBOX_HOME/.zshrc

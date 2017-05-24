@@ -1,0 +1,26 @@
+#!/bin/sh
+## Copyright 2017 Clemens Fruhwirth <clemens@endorphin.org>
+##
+## Usage: pwdjail-rmIr DIR
+##
+absolute() {
+    cd $1 && pwd
+}
+
+SANDBOX_HOME=$(absolute $1)
+if [ -z $SANDBOX_HOME ]; then
+  echo "Could not access $1"
+  exit 1
+fi
+
+SANDBOX_USER=$(getent passwd | awk -F: '"'$SANDBOX_HOME'" == $6 && $5=="Sandbox user" { print $1 }' | head -1)
+if [ -z "$SANDBOX_USER" ]; then
+  echo No user has $SANDBOX_HOME as home directory.
+  exit 1
+fi
+
+echo "$SANDBOX_USER owns $1. Removing..."
+sudo userdel $SANDBOX_USER
+echo "Removed user."
+echo "Calling \"rm -Ir $1\""
+rm -Ir $1
