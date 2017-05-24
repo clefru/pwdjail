@@ -16,7 +16,6 @@ fi
 PWDJAIL_ROOT=$(absolute $(dirname $0))
 if [ -z $PWDJAIL_ROOT ]; then
   (>&2 echo "Could not find install dir of pwdjail.")
-  echo "Could not find PWDJAIL_ROOT"
   exit 1
 fi
 
