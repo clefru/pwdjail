@@ -60,4 +60,4 @@ sudo setfacl -d -m u:$MASTER_USER:rwx $SANDBOX_HOME
 sudo setfacl -d -m u:$SANDBOX_USER:rwx $SANDBOX_HOME
 sudo setfacl -m u:$MASTER_USER:rwx $SANDBOX_HOME
 
-sudo ln -s $PWDJAIL_ROOT/sandbox-zshrc $SANDBOX_HOME/.zshrc
+sudo echo "source $PWDJAIL_ROOT/sandbox-zshrc" > $SANDBOX_HOME/.zshrc
