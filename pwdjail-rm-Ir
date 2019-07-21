@@ -25,6 +25,7 @@ if [ -z "$SANDBOX_USER" ]; then
 fi
 
 echo "$SANDBOX_USER owns $1. Removing..."
+# FIXME killall processes belonging to this user, so that userdel succeeds.
 sudo userdel $SANDBOX_USER
 echo "Removed user."
 echo "Calling \"rm -Ir $1\""

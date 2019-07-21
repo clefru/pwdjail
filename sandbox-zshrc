@@ -8,6 +8,7 @@ chpwd() {
 	;;
 	*)
 	    if [ -n "$PWDJAIL_EXIT_DIR" ]; then
+                # FIXME bring that to the fd passback mechanism from the jailer
 		echo $PWD > $PWDJAIL_EXIT_DIR
 		exit 0
 	    fi

@@ -3,6 +3,12 @@
 ## Usage: source master-zshrc from your .zshrc
 ##
 
+#FIXME incorrect user selection when:
+# pwdjail-mkdir /somedir/foo
+# pwdjail-mkdir /somedir/foobar
+# cd foobar
+# This will select the foo user as /somedir/foo is a prefix of /somedir/foobar.
+
 # FIXME any modification to this function with pwdjail-rm-Ir
 function pwdjail_get_user_for_directory() {
   getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox user" { print $1 }' | head -1
@@ -14,6 +20,7 @@ function pwdjail_enter() {
     [ -z "$SANDBOX_USER" ] && return
 
     TMP=$(mktemp)
+    # FIXME Don't make that world-write readable.
     chmod a+w $TMP
 
     sudo -u $SANDBOX_USER /usr/bin/env PWDJAIL_EXIT_DIR=$TMP zsh -i

@@ -32,6 +32,8 @@ pick_user_name() {
     (>&2 echo "Could not find a username for sandbox user.")
 }
 
+# FIXME: Add a check to match against ([a-z_][a-z0-9_]{0,30})
+
 SANDBOX_USER=$(pick_user_name $(basename $1))
 if [ -z "$SANDBOX_USER" ]; then
     exit 1
