@@ -27,6 +27,4 @@ function pwdjail_enter() {
     fi
 }
 
-chpwd() {
-    pwdjail_enter
-}
+chpwd_functions=(${chpwd_functions[@]} "pwdjail_enter")
