@@ -28,7 +28,8 @@ function pwdjail_enter() {
     rm $TMP
     if [ -z "$EXIT_DIR" ]; then
         echo 'Warning: Sandbox shell exited without changing directory. Use "cd" to exit.'
-        echo 'You are in a sandbox directory now.'
+        echo "Returning you to $OLDPWD"
+        cd $OLDPWD
     else
         cd $EXIT_DIR
     fi
