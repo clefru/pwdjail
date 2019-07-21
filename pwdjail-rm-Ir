@@ -9,7 +9,7 @@ absolute() {
 
 # FIXME any modification to this function with master-zshrc
 function pwdjail_get_user_for_directory() {
-  getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox user" { print $1 }' | head -1
+  getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox (X11 )?user" { print $1 }' | head -1
 }
 
 SANDBOX_HOME=$(absolute $1)

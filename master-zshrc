@@ -11,7 +11,7 @@
 
 # FIXME any modification to this function with pwdjail-rm-Ir
 function pwdjail_get_user_for_directory() {
-  getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox user" { print $1 }' | head -1
+  getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox (X11 )?user" { print $1 }' | head -1
 }
 
 function pwdjail_enter() {
@@ -19,10 +19,25 @@ function pwdjail_enter() {
     SANDBOX_USER=$(pwdjail_get_user_for_directory "$PWD")
     [ -z "$SANDBOX_USER" ] && return
 
+    SANDBOX_PWDLINE_RAW=$(getent passwd $SANDBOX_USER)
+    SANDBOX_PWDLINE=("${(@s/:/)SANDBOX_PWDLINE_RAW}")
+
+    if [ "$SANDBOX_PWDLINE[5]" = "Sandbox user" ]; then
+      X11=false
+    else
+      if [ "$SANDBOX_PWDLINE[5]" = "Sandbox X11 user" ]; then
+        X11=true
+      else
+        return
+      fi
+    fi
     TMP=$(mktemp)
     # FIXME Don't make that world-write readable.
     chmod a+w $TMP
-
+    SANDBOX_ROOT=$SANDBOX_PWDLINE[6]
+    # FIXME only extract the cookie of the current $DISPLAY. Not all!
+    $X11 && cat ${XAUTHORITY:-$HOME/.Xauthority} | sudo -u $SANDBOX_USER tee $SANDBOX_ROOT/.Xauthority > /dev/null
+    export XAUTHORITY=$SANDBOX_ROOT/.Xauthority
     sudo -u $SANDBOX_USER /usr/bin/env PWDJAIL_EXIT_DIR=$TMP zsh -i
     EXIT_DIR=$(cat $TMP)
     rm $TMP
