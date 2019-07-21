@@ -3,9 +3,14 @@
 ## Usage: source master-zshrc from your .zshrc
 ##
 
-pwdjail_enter() {
+# FIXME any modification to this function with pwdjail-rm-Ir
+function pwdjail_get_user_for_directory() {
+  getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox user" { print $1 }' | head -1
+}
+
+function pwdjail_enter() {
     # Grab through /etc/passwd for sandbox users that have a home dir above $PWD.
-    SANDBOX_USER=$(getent passwd | awk -F: '"'$PWD'" ~ $6 && $5=="Sandbox user" { print $1 }' | head -1)
+    SANDBOX_USER=$(pwdjail_get_user_for_directory "$PWD")
     [ -z "$SANDBOX_USER" ] && return
 
     TMP=$(mktemp)

@@ -7,13 +7,18 @@ absolute() {
     cd $1 && pwd
 }
 
+# FIXME any modification to this function with master-zshrc
+function pwdjail_get_user_for_directory() {
+  getent passwd | awk -F: '"'"$1"/'" ~ $6"/" && $5 ~ "Sandbox user" { print $1 }' | head -1
+}
+
 SANDBOX_HOME=$(absolute $1)
 if [ -z $SANDBOX_HOME ]; then
   (>&2 echo "Could not access $1.")
   exit 1
 fi
 
-SANDBOX_USER=$(getent passwd | awk -F: '"'$SANDBOX_HOME'" == $6 && $5=="Sandbox user" { print $1 }' | head -1)
+SANDBOX_USER=$(pwdjail_get_user_directory "$SANDBOX_HOME")
 if [ -z "$SANDBOX_USER" ]; then
   (>&2 echo "No user has $SANDBOX_HOME as home directory.")
   exit 1
