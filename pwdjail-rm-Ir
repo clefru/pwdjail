@@ -29,4 +29,4 @@ echo "$SANDBOX_USER owns $1. Removing..."
 sudo userdel $SANDBOX_USER
 echo "Removed user."
 echo "Calling \"rm -Ir $1\""
-rm -Ir $1
+sudo rm -Ir $1
